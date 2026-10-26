@@ -1,13 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
-  const [recetas, setRecetas] = useState([
-    { id: 1, nombre: 'Tacos al pastor', ingredientes: 'Tortilla, pastor, piña, cebolla, cilantro' },
-    { id: 2, nombre: 'Quesadillas', ingredientes: 'Tortilla, queso' },
-  ])
+  const [recetas, setRecetas] = useState(() => {
+    const guardadas = localStorage.getItem('recetas')
+    if (guardadas) return JSON.parse(guardadas)
+    return [
+      { id: 1, nombre: 'Tacos al pastor', ingredientes: 'Tortilla, pastor, piña, cebolla, cilantro' },
+      { id: 2, nombre: 'Quesadillas', ingredientes: 'Tortilla, queso' },
+    ]
+  })
   const [nombre, setNombre] = useState('')
   const [ingredientes, setIngredientes] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem('recetas', JSON.stringify(recetas))
+  }, [recetas])
 
   function agregarReceta(e) {
     e.preventDefault()
@@ -16,6 +24,10 @@ function App() {
     setRecetas([...recetas, nueva])
     setNombre('')
     setIngredientes('')
+  }
+
+  function borrarReceta(id) {
+    setRecetas(recetas.filter((receta) => receta.id !== id))
   }
 
   return (
@@ -41,6 +53,7 @@ function App() {
         <div key={receta.id}>
           <h3>{receta.nombre}</h3>
           <p>{receta.ingredientes}</p>
+          <button onClick={() => borrarReceta(receta.id)}>Borrar</button>
         </div>
       ))}
     </div>
